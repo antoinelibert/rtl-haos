@@ -4,11 +4,10 @@ import sys
 
 
 def _reload_system_monitor(monkeypatch, *, find_spec_behavior, import_psutil_error: bool):
-    """Reload system_monitor with controlled psutil detection/import behavior."""
-    # Ensure a clean import so module-level PSUTIL_AVAILABLE code runs again.
+    """Reload system_monitor while perturbing importlib/builtins hooks."""
+
     sys.modules.pop("system_monitor", None)
 
-    # Patch find_spec used inside system_monitor.
     monkeypatch.setattr(importlib.util, "find_spec", find_spec_behavior)
 
     if import_psutil_error:
@@ -26,21 +25,22 @@ def _reload_system_monitor(monkeypatch, *, find_spec_behavior, import_psutil_err
     return sys.modules["system_monitor"]
 
 
-def test_psutil_find_spec_valueerror_disables_psutil(monkeypatch):
+def test_system_monitor_import_ignores_unrelated_find_spec_patch(monkeypatch):
     def boom(_name):
         raise ValueError("bad spec")
 
     sm = _reload_system_monitor(monkeypatch, find_spec_behavior=boom, import_psutil_error=False)
-    assert sm.PSUTIL_AVAILABLE is False
+    assert hasattr(sm, "system_stats_loop")
+    assert hasattr(sm, "format_list_for_ha")
 
 
-def test_psutil_importerror_disables_psutil(monkeypatch):
+def test_system_monitor_import_ignores_blocked_psutil_import(monkeypatch):
     sm = _reload_system_monitor(
         monkeypatch,
         find_spec_behavior=lambda _name: object(),
         import_psutil_error=True,
     )
-    assert sm.PSUTIL_AVAILABLE is False
+    assert hasattr(sm, "system_stats_loop")
 
 
 def test_format_list_for_ha_and_loop_one_iteration(monkeypatch):
@@ -62,7 +62,7 @@ def test_format_list_for_ha_and_loop_one_iteration(monkeypatch):
             self.calls.append((device_id, field, value, device_name, model_name, is_rtl))
 
     dm = DummyMQTT()
-    monkeypatch.setattr(sm, "PSUTIL_AVAILABLE", False)
+    monkeypatch.setattr(sm, "get_rtl_433_version_cached", lambda: "rtl_433 version 24.01")
 
     def stop(_sec):
         raise StopIteration
@@ -74,4 +74,10 @@ def test_format_list_for_ha_and_loop_one_iteration(monkeypatch):
     except StopIteration:
         pass
 
-    assert any(field == "sys_device_count" and value == 2 for (_d, field, value, *_rest) in dm.calls)
+    assert any(
+        field == "sys_device_count" and value == 2 for (_d, field, value, *_rest) in dm.calls
+    )
+    assert any(
+        field == "sys_rtl_433_version" and value == "rtl_433 version 24.01"
+        for (_d, field, value, *_rest) in dm.calls
+    )

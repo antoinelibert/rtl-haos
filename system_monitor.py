@@ -12,27 +12,7 @@ import sys
 import importlib.util
 import socket
 import subprocess
-# --- IMPORTS & DEPENDENCY CHECK ---
-# NOTE: During unit tests, conftest may inject a dummy "psutil" into sys.modules.
-# Some mocks (e.g. MagicMock) don't provide __spec__, which can cause
-# importlib.util.find_spec("psutil") to raise ValueError. Treat that the same
-# as "psutil not available".
-PSUTIL_AVAILABLE = False
-try:
-    try:
-        psutil_spec = importlib.util.find_spec("psutil")
-    except ValueError:
-        psutil_spec = None
 
-    if psutil_spec is not None:
-        import psutil  # noqa: F401
-        from sensors_system import SystemMonitor
-        PSUTIL_AVAILABLE = True
-    else:
-        print("[WARN] 'psutil' not found. CPU/RAM stats will be disabled, but Device List will work.")
-except ImportError as e:
-    PSUTIL_AVAILABLE = False
-    print(f"[WARN] System Monitoring disabled: {e}")
 
 
 # Safe imports for the rest of the app
@@ -88,15 +68,6 @@ def get_rtl_433_version_cached():
 
 def system_stats_loop(mqtt_handler, DEVICE_ID, MODEL_NAME):
     
-    # Initialize Hardware Monitor if available
-    sys_mon = None
-    if PSUTIL_AVAILABLE:
-        try:
-            sys_mon = SystemMonitor()
-            print("[STARTUP] Hardware Monitor (psutil) initialized.")
-        except Exception as e:
-            print(f"[WARN] Hardware Monitor failed to start: {e}")
-
     print("[STARTUP] Starting System Monitor Loop...")
 
 
@@ -129,22 +100,7 @@ def system_stats_loop(mqtt_handler, DEVICE_ID, MODEL_NAME):
         except Exception as e:
             print(f"[ERROR] Bridge Stats update failed: {e}")
 
-        # --- 2. HARDWARE METRICS (Only if psutil is working) ---
-        if sys_mon:
-            try:
-                stats = sys_mon.read_stats()
-                for key, value in stats.items(): 
-                    mqtt_handler.send_sensor(
-                        DEVICE_ID, 
-                        key, 
-                        value, 
-                        device_name, 
-                        MODEL_NAME, 
-                        is_rtl=True 
-                    )
-            except Exception as e:
-                print(f"[SYSTEM ERROR] Hardware stats failed: {e}")
-            
+
         time.sleep(60) 
 
 if __name__ == "__main__":

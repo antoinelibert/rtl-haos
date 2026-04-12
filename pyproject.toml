@@ -3,10 +3,9 @@ name = "rtl-haos"
 version = "1.1.11"
 description = "RTL-SDR to Home Assistant MQTT bridge"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
     "paho-mqtt==2.1.0",
-    "psutil==7.0.0",
     "pydantic>=2.0.0",
     "pydantic-settings>=2.11.0",
 ]
@@ -22,10 +21,6 @@ dev = [
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
 
-# CI/containers can emit noisy RuntimeWarnings from vendored psutil implementations.
-filterwarnings = [
-    "ignore:.*swap memory stats couldn't be determined.*:RuntimeWarning",
-]
 
 markers = [
   "integration: opt-in tests that execute rtl_433 (external process)",
@@ -34,7 +29,7 @@ markers = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py313"
 
 [tool.ruff.lint]
 # Start strict-ish, but ignore a few noisy rules so existing code passes.
@@ -67,3 +62,8 @@ omit = [
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]

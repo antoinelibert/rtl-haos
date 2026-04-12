@@ -61,11 +61,10 @@ def test_system_stats_loop_publishes_rtl_433_version_once(monkeypatch):
             # args: (DEVICE_ID, key, value, device_name, model_name, ...)
             sent.append((args, kwargs))
 
-    # Avoid psutil path entirely for this unit test
-    monkeypatch.setattr(system_monitor, "PSUTIL_AVAILABLE", False, raising=False)
-
     # Make version deterministic
-    monkeypatch.setattr(system_monitor, "get_rtl_433_version_cached", lambda: "rtl_433 version 24.01")
+    monkeypatch.setattr(
+        system_monitor, "get_rtl_433_version_cached", lambda: "rtl_433 version 24.01"
+    )
 
     def stop_sleep(_s):
         raise KeyboardInterrupt()

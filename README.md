@@ -8,7 +8,7 @@ A "drop-in" bridge that turns one or more **RTL-SDR dongles** into Home Assistan
 
 Unlike standard `rtl_433` scripts, this project captures **detailed signal metrics** (RSSI, SNR, Noise) for every received packet, allowing you to troubleshoot interference and optimize antenna placement directly from Home Assistant.
 
-It also functions as a **System Monitor**, reporting the host machine's health (CPU, RAM, Disk, Temp) and the live status of the radio dongle itself, giving you a complete view of your hardware's performance in one place.
+It also functions as a **System Monitor**, reporting the live status of the radio dongle itself, giving you a complete view of your radio's performance in one place.
 
 See rtl_433 documentation for supported devices: https://github.com/merbanan/rtl_433
 
@@ -31,7 +31,6 @@ See rtl_433 documentation for supported devices: https://github.com/merbanan/rtl
 - **Zero-Config Discovery:** Sensors appear automatically in Home Assistant (via MQTT Discovery) with correct units, icons, and friendly names.
 - **Signal Diagnostics:** Reports **RSSI, SNR, and Noise Floor** for every device, making it easy to identify weak signals, plot coverage ranges, or hunt down interference sources.
 - **Smart System Monitor:**
-  - Reports Host CPU, RAM, Disk, and Temperature.
   - **Live Radio Status:** Shows `"Scanning..."`, `"Online"`, or error states like `"No Device Found"` / `"Error: USB Busy"` for each radio, grouped with the host device.
 - **Native Graphing:** Environmental sensors use the correct `measurement` state class, and meter-like fields use `total_increasing`, so graphs and statistics in Home Assistant just work for temperatures, humidity, pressure, light, and utility counters.
 - **Noise Reduction:**
@@ -87,7 +86,6 @@ graph TD
         USBSDR -->|USB| RTL433[rtl_433]
         RTLTCP -->|TCP port 1234| RTL433
         RTL433 -->|Decoded JSON packets| BRIDGE[RTL-HAOS Bridge]
-        STATS[CPU/RAM/Disk/Temp] --> BRIDGE
     end
 
     %% MQTT and Home Assistant
@@ -136,7 +134,7 @@ _The signal boost between 8:00 AM and 5:00 PM is due to the AcuRite 5-in-1 inter
 - `rtl_manager.py` – Spawns/monitors `rtl_433` process(es) and handles multi-radio orchestration.
 - `data_processor.py` – Handles buffering, averaging, and throttling.
 - `mqtt_handler.py` – MQTT connection + Home Assistant MQTT Discovery publishing.
-- `system_monitor.py` / `sensors_system.py` – Host stats + radio status publishing.
+- `system_monitor.py` – Radio status publishing.
 - `field_meta.py` – Field metadata (units, device class, icons, etc.).
 - `utils.py` – Shared helpers (IDs, formatting, derived fields like dew point).
 - `docs/` – Deeper documentation (config, MQTT, multi-radio, development/testing).
