@@ -39,7 +39,12 @@ options:
   # --- Battery alert behavior (battery_ok -> Battery Low) ---
   # 0 disables latching and clears low on the next OK
   battery_ok_clear_after: 300
-  
+
+  # --- Hardware Monitor ---
+  # Enable/disable hardware monitoring (CPU, RAM, Disk, Temp).
+  # When disabled, only device count and rtl_433 version are published.
+  hardware_monitor_enabled: false
+
   # --- DEFAULTS (Add-on UI) ---
   # Global defaults are NOT exposed in the add-on UI.
   # In add-on mode, use rtl_config below to set freq/rate/hop per-radio.
@@ -97,6 +102,9 @@ schema:
   rtl_auto_band_plan: list(auto|us|eu|world)
 
   battery_ok_clear_after: int
+
+  # Hardware Monitor
+  hardware_monitor_enabled: bool
 
   # --- DELETED GLOBAL SCHEMA ---
   # The UI will no longer show the 3 text boxes for defaults.

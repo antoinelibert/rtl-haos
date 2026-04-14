@@ -346,6 +346,10 @@ debug_raw_json: false # Print raw rtl_433 JSON for debugging
 battery_ok_clear_after: 300
 # Note: Battery Low uses a long MQTT expire_after (24h+) to avoid going 'unavailable' for devices that report battery infrequently.
 
+# Hardware Monitor (disabled by default)
+# Set to true to enable CPU/RAM/Disk/Temp monitoring via psutil
+hardware_monitor_enabled: false
+
 # Multi-Radio Configuration (leave empty for auto-detection)
 rtl_config:
   - name: Weather Radio # Friendly name

@@ -210,6 +210,14 @@ class Settings(BaseSettings):
         description="Seconds battery_ok must be OK before clearing a low alert (0 disables).",
     )
 
+    # --- Hardware Monitor ---
+    # Enable/disable the hardware monitor (CPU, RAM, Disk, Temp).
+    # When disabled, only device count and rtl_433 version are published.
+    hardware_monitor_enabled: bool = Field(
+        default=False,
+        description="Enable hardware monitoring (psutil-based CPU/RAM/Disk/Temp stats).",
+    )
+
     @property
     def id_suffix(self) -> str:
         return "_v2" if self.force_new_ids else ""
@@ -270,3 +278,6 @@ VERBOSE_TRANSMISSIONS = settings.verbose_transmissions
 
 # Battery behavior
 BATTERY_OK_CLEAR_AFTER = settings.battery_ok_clear_after
+
+# Hardware Monitor
+HARDWARE_MONITOR_ENABLED = settings.hardware_monitor_enabled

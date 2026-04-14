@@ -37,6 +37,7 @@ def test_system_stats_loop_hardware_stats_error_is_caught(mocker, capsys):
     mqtt.send_sensor = mocker.Mock()
 
     mocker.patch.object(system_monitor, "PSUTIL_AVAILABLE", True)
+    mocker.patch.object(system_monitor.config, "HARDWARE_MONITOR_ENABLED", True)
     mocker.patch.object(system_monitor, "SystemMonitor", return_value=DummyMon())
     mocker.patch("system_monitor.time.sleep", side_effect=InterruptedError("stop"))
 
