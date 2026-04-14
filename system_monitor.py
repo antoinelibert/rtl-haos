@@ -87,15 +87,19 @@ def get_rtl_433_version_cached():
     return _RTL_433_VERSION_CACHE
 
 def system_stats_loop(mqtt_handler, DEVICE_ID, MODEL_NAME):
-    
-    # Initialize Hardware Monitor if available
+
+    # Initialize Hardware Monitor if available and enabled
     sys_mon = None
-    if PSUTIL_AVAILABLE:
+    hardware_monitor_enabled = getattr(config, "HARDWARE_MONITOR_ENABLED", True)
+    
+    if hardware_monitor_enabled and PSUTIL_AVAILABLE:
         try:
             sys_mon = SystemMonitor()
             print("[STARTUP] Hardware Monitor (psutil) initialized.")
         except Exception as e:
             print(f"[WARN] Hardware Monitor failed to start: {e}")
+    elif not hardware_monitor_enabled:
+        print("[STARTUP] Hardware Monitor disabled via config.")
 
     print("[STARTUP] Starting System Monitor Loop...")
 

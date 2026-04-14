@@ -50,6 +50,7 @@ def test_system_stats_loop_psutil_success_path(monkeypatch):
             sent.append((a, k))
 
     monkeypatch.setattr(system_monitor, "PSUTIL_AVAILABLE", True)
+    monkeypatch.setattr(system_monitor.config, "HARDWARE_MONITOR_ENABLED", True)
 
     class DummyMon:
         def read_stats(self):
@@ -71,9 +72,12 @@ def test_system_stats_loop_handles_systemmonitor_init_failure(monkeypatch, capsy
 
     class DummyMQTT:
         tracked_devices = set()
-        def send_sensor(self, *a, **k): return
+
+        def send_sensor(self, *a, **k):
+            return
 
     monkeypatch.setattr(system_monitor, "PSUTIL_AVAILABLE", True)
+    monkeypatch.setattr(system_monitor.config, "HARDWARE_MONITOR_ENABLED", True)
 
     def boom():
         raise RuntimeError("no psutil access")
